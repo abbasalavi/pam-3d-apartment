@@ -3,39 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pam's Apartment</title>
+  <title>Pam's Apartment v2</title>
   <style>
     body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-    #info {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      background: rgba(0,0,0,0.5);
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 14px;
-      pointer-events: none;
-      text-align: center;
-    }
     #loading {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #2a1f1a;
-      color: #e8c9a0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      z-index: 100;
-      font-family: 'Georgia', serif;
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background:#2a1f1a; color:#e8c9a0; display:flex; align-items:center;
+      justify-content:center; font-size:24px; z-index:100; font-family:'Georgia',serif;
     }
+    #info {
+      position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+      color:#fff; background:rgba(0,0,0,0.5); padding:10px 20px;
+      border-radius:20px; font-size:14px; pointer-events:none; text-align:center;
+    }
+    #hint {
+      position:absolute; top:20px; left:50%; transform:translateX(-50%);
+      color:#fff; background:rgba(0,0,0,0.4); padding:8px 16px;
+      border-radius:16px; font-size:13px; pointer-events:none;
+    }
+    #bubble {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      background:rgba(255,255,255,0.92); color:#333; padding:12px 24px;
+      border-radius:20px; font-family:'Georgia',serif; font-size:16px;
+      opacity:0; transition:opacity 0.5s; pointer-events:none;
+      max-width:300px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.2);
+    }
+    #bubble.show { opacity:1; }
   </style>
 </head>
 <body>
   <div id="loading">Loading Pam's Apartment...</div>
-  <div id="info">WASD to move · Mouse to look around · 🌅</div>
+  <div id="hint">🖱 Orbit · Click Pam for reactions</div>
+  <div id="info"></div>
+  <div id="bubble"></div>
 
   <script type="importmap">
   {
@@ -49,265 +49,479 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
 
-    // ── Scene Setup ──
+    // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xe8c9a0); // warm golden
+    scene.background = new THREE.Color(0xe8c9a0);
+    scene.fog = new THREE.Fog(0xe8c9a0, 8, 14);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(4, 2, 6);
-    camera.lookAt(0, 1, 0);
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(3, 2.2, 5);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.0;
     document.body.appendChild(renderer.domElement);
 
-    // ── Controls ──
+    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 1.2, 0);
+    controls.target.set(0, 1.0, 0);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
-    controls.maxPolarAngle = Math.PI / 2.1;
-    controls.minDistance = 1.5;
-    controls.maxDistance = 10;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI/2.1;
+    controls.minDistance = 1.0;
+    controls.maxDistance = 8;
 
-    // ── Lights ──
-    const ambientLight = new THREE.AmbientLight(0xffeedd, 0.3);
-    scene.add(ambientLight);
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffeedd, 0.4));
 
-    // Golden hour sun
-    const sunLight = new THREE.DirectionalLight(0xff9944, 2.0);
-    sunLight.position.set(-5, 8, 5);
-    sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
-    scene.add(sunLight);
+    const sun = new THREE.DirectionalLight(0xff9944, 2.5);
+    sun.position.set(-4, 10, 3);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024,1024);
+    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 20;
+    sun.shadow.camera.left = -6; sun.shadow.camera.right = 6;
+    sun.shadow.camera.top = 6; sun.shadow.camera.bottom = -6;
+    scene.add(sun);
 
-    const fillLight = new THREE.DirectionalLight(0x88aaff, 0.3);
-    fillLight.position.set(3, 2, -3);
-    scene.add(fillLight);
+    scene.add(new THREE.DirectionalLight(0x88aaff, 0.3).position.set(3,2,-3));
+    scene.add(new THREE.DirectionalLight(0xff6633, 0.5).position.set(3,1,-4));
 
-    // ── Floor (Hardwood) ──
-    const floorGeometry = new THREE.PlaneGeometry(10, 10);
-    const floorMaterial = new THREE.MeshStandardMaterial({
-      color: 0x8b6b4a,
-      roughness: 0.7,
-      metalness: 0.1,
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
+    // Floor
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(12,12),
+      new THREE.MeshStandardMaterial({color:0x8b6b4a, roughness:0.6, metalness:0.05})
+    );
+    floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
     scene.add(floor);
 
-    // ── Walls ──
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5eee6, roughness: 0.9 });
+    // Floorboards
+    const lbm = new THREE.LineBasicMaterial({color:0x7a5e3d, transparent:true, opacity:0.15});
+    for(let x=-5.5; x<=5.5; x+=0.4){
+      const g = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x,0.01,-5.5), new THREE.Vector3(x,0.01,5.5)
+      ]);
+      scene.add(new THREE.Line(g,lbm));
+    }
 
-    // Back wall
-    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), wallMat);
-    backWall.position.set(0, 2, -5);
-    scene.add(backWall);
+    // Walls
+    const wm = new THREE.MeshStandardMaterial({color:0xf0e8df, roughness:0.9});
+    const bw = new THREE.Mesh(new THREE.PlaneGeometry(12,4.5), wm);
+    bw.position.set(0,2.25,-5.5); scene.add(bw);
+    const lw = new THREE.Mesh(new THREE.PlaneGeometry(11,4.5), wm);
+    lw.position.set(-5.5,2.25,0); lw.rotation.y = Math.PI/2; scene.add(lw);
+    const rw = new THREE.Mesh(new THREE.PlaneGeometry(11,4.5), wm);
+    rw.position.set(5.5,2.25,0); rw.rotation.y = -Math.PI/2; scene.add(rw);
 
-    // Left wall
-    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), wallMat);
-    leftWall.position.set(-5, 2, 0);
-    leftWall.rotation.y = Math.PI / 2;
-    scene.add(leftWall);
-
-    // ── West-facing Windows ──
-    const windowFrameMat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.6 });
-    const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x88ccff,
-      transparent: true,
-      opacity: 0.3,
-      roughness: 0.1,
-      metalness: 0,
+    // Windows
+    const fm = new THREE.MeshStandardMaterial({color:0xc4956a, roughness:0.5});
+    const gm = new THREE.MeshPhysicalMaterial({
+      color:0x88ddff, transparent:true, opacity:0.2, roughness:0.05, metalness:0
     });
-
-    // Back wall has windows
-    for (let i = -2; i <= 2; i += 2) {
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.5, 0.1), windowFrameMat);
-      frame.position.set(i, 2, -4.94);
-      scene.add(frame);
-
-      const glass = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 2.3), glassMat);
-      glass.position.set(i, 2, -4.95);
-      scene.add(glass);
-    }
-
-    // ── Dark Green Couch ──
-    const couchMat = new THREE.MeshStandardMaterial({ color: 0x2d5a3d, roughness: 0.8 });
-    const cushionMat = new THREE.MeshStandardMaterial({ color: 0x3a6b4a, roughness: 0.9 });
-
-    // Base
-    const couchBase = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 1.0), couchMat);
-    couchBase.position.set(0, 0.4, 1.5);
-    couchBase.castShadow = true;
-    couchBase.receiveShadow = true;
-    scene.add(couchBase);
-
-    // Back
-    const couchBack = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 0.3), couchMat);
-    couchBack.position.set(0, 0.8, 2.0);
-    couchBack.castShadow = true;
-    scene.add(couchBack);
-
-    // Armrests
-    for (let x of [-1.5, 1.5]) {
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 1.0), couchMat);
-      arm.position.set(x, 0.65, 1.5);
-      arm.castShadow = true;
-      scene.add(arm);
-    }
-
-    // Seat cushions
-    for (let x of [-0.7, 0.7]) {
-      const cushion = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.2, 0.7), cushionMat);
-      cushion.position.set(x, 0.9, 1.5);
-      cushion.receiveShadow = true;
-      scene.add(cushion);
-    }
-
-    // ── Coffee Table ──
-    const tableMat = new THREE.MeshStandardMaterial({ color: 0x5c3a1e, roughness: 0.7 });
-    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.8), tableMat);
-    tableTop.position.set(1.5, 0.55, 0.5);
-    tableTop.castShadow = true;
-    scene.add(tableTop);
-    // Legs
-    for (let x of [-0.5, 0.5]) {
-      for (let z of [-0.3, 0.3]) {
-        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), tableMat);
-        leg.position.set(1.5 + x, 0.25, 0.5 + z);
-        scene.add(leg);
-      }
-    }
-
-    // ── Aquarium (the Borg 🦐) ──
-    const tankMat = new THREE.MeshPhysicalMaterial({
-      color: 0x88ddff,
-      transparent: true,
-      opacity: 0.15,
-      roughness: 0,
-      metalness: 0,
-    });
-    const tankFrame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.5), tankMat);
-    tankFrame.position.set(-2.5, 0.5, 1.0);
-    scene.add(tankFrame);
-    // Green plants inside
-    const plantMat = new THREE.MeshStandardMaterial({ color: 0x2d8a3d });
-    const plant = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.15, 0.4, 6), plantMat);
-    plant.position.set(-2.5, 0.5, 1.0);
-    scene.add(plant);
-    // Tiny red shrimp (the Borg)
-    const shrimpMat = new THREE.MeshStandardMaterial({ color: 0xff3333 });
-    for (let i = 0; i < 5; i++) {
-      const shrimp = new THREE.Mesh(new THREE.SphereGeometry(0.02, 4, 4), shrimpMat);
-      shrimp.position.set(
-        -2.5 + (Math.random() - 0.5) * 0.4,
-        0.4 + Math.random() * 0.3,
-        1.0 + (Math.random() - 0.5) * 0.3
+    for(let i=-2; i<=2; i+=2){
+      const fo = new THREE.Mesh(new THREE.BoxGeometry(1.6,2.6,0.08), fm);
+      fo.position.set(i,2.1,-5.46); scene.add(fo);
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(1.4,2.4), gm);
+      gl.position.set(i,2.1,-5.47); scene.add(gl);
+      const gw = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.6,2.6),
+        new THREE.MeshBasicMaterial({color:0xffaa44,transparent:true,opacity:0.06})
       );
-      scene.add(shrimp);
+      gw.position.set(i,2.1,-5.4); scene.add(gw);
     }
 
-    // ── Pam's Avatar (placeholder) ──
-    const avatarGroup = new THREE.Group();
-    avatarGroup.position.set(0, 0.9, 1.0);
-
-    // Body (simple dress/sweater)
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7 });
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 0.7, 8), bodyMat);
-    body.position.y = 0.35;
-    body.castShadow = true;
-    avatarGroup.add(body);
-
-    // Head
-    const headMat = new THREE.MeshStandardMaterial({ color: 0xf0d5b0, roughness: 0.5 });
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), headMat);
-    head.position.y = 0.85;
-    head.castShadow = true;
-    avatarGroup.add(head);
-
-    // Hair
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a3520, roughness: 0.8 });
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.19, 12, 12), hairMat);
-    hair.position.y = 0.88;
-    hair.scale.set(1, 0.7, 1.1);
-    avatarGroup.add(hair);
-
-    // Legs
-    const legMat = new THREE.MeshStandardMaterial({ color: 0xf0d5b0, roughness: 0.7 });
-    for (let x of [-0.1, 0.1]) {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.4, 6), legMat);
-      leg.position.set(x, 0.0, 0);
-      avatarGroup.add(leg);
+    // Couch
+    function mkCouch(){
+      const g = new THREE.Group();
+      const cm = new THREE.MeshStandardMaterial({color:0x2d5a3d, roughness:0.85});
+      const csm = new THREE.MeshStandardMaterial({color:0x3a6b4a, roughness:0.95});
+      const b = new THREE.Mesh(new THREE.BoxGeometry(2.8,0.6,1.0), cm);
+      b.position.set(0,0.3,0); b.castShadow=true; b.receiveShadow=true; g.add(b);
+      const bk = new THREE.Mesh(new THREE.BoxGeometry(2.8,0.7,0.25), cm);
+      bk.position.set(0,0.65,0.55); bk.castShadow=true; g.add(bk);
+      for(let x of [-1.45,1.45]){
+        const a = new THREE.Mesh(new THREE.BoxGeometry(0.25,0.5,1.0), cm);
+        a.position.set(x,0.55,0); a.castShadow=true; g.add(a);
+      }
+      for(let x of [-0.65,0.65]){
+        const c = new THREE.Mesh(new THREE.BoxGeometry(0.9,0.15,0.65), csm);
+        c.position.set(x,0.67,-0.05); c.receiveShadow=true; g.add(c);
+      }
+      const pm = new THREE.MeshStandardMaterial({color:0xc4a265, roughness:0.9});
+      for(let x of [-0.5,0.5]){
+        const p = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.25,0.12), pm);
+        p.position.set(x,0.825,0.45); g.add(p);
+      }
+      return g;
     }
+    const couch = mkCouch(); couch.position.set(0,0,1.7); scene.add(couch);
 
-    scene.add(avatarGroup);
-
-    // ── Warm golden particles (dust motes in sunbeams) ──
-    const particleGeo = new THREE.BufferGeometry();
-    const particleCount = 300;
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount * 3; i++) {
-      positions[i] = (Math.random() - 0.5) * 8;
+    // Coffee table
+    function mkTable(){
+      const g = new THREE.Group();
+      const m = new THREE.MeshStandardMaterial({color:0x5c3a1e, roughness:0.7});
+      const t = new THREE.Mesh(new THREE.BoxGeometry(1.0,0.08,0.6), m);
+      t.position.set(0,0.54,0); t.castShadow=true; t.receiveShadow=true; g.add(t);
+      for(let x of [-0.4,0.4]) for(let z of [-0.22,0.22]){
+        const l = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,0.5), m);
+        l.position.set(x,0.25,z); g.add(l);
+      }
+      return g;
     }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0xffdd88,
-      size: 0.02,
-      transparent: true,
-      opacity: 0.4,
-    });
-    const particles = new THREE.Points(particleGeo, particleMat);
+    const table = mkTable(); table.position.set(1.2,0,0.8); scene.add(table);
+
+    // Bookshelf
+    function mkShelf(){
+      const g = new THREE.Group();
+      const wm2 = new THREE.MeshStandardMaterial({color:0x6b4226, roughness:0.8});
+      const bc = [0xcc3333,0x3366cc,0x33cc66,0xcc9933,0x9933cc,0x669999];
+      const sd = new THREE.Mesh(new THREE.BoxGeometry(0.06,1.6,0.4), wm2);
+      sd.position.set(0,0.8,0); g.add(sd);
+      for(let y of [0.2,0.7,1.2]){
+        const sh = new THREE.Mesh(new THREE.BoxGeometry(0.8,0.04,0.4), wm2);
+        sh.position.set(0.37,y,0); g.add(sh);
+      }
+      for(let sy of [0.35,0.85,1.35]){
+        for(let i=0; i<3+Math.floor(Math.random()*3); i++){
+          const c = bc[Math.floor(Math.random()*bc.length)];
+          const bk = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08,0.25+Math.random()*0.1,0.25+Math.random()*0.05),
+            new THREE.MeshStandardMaterial({color:c, roughness:0.8})
+          );
+          bk.position.set(0.1+i*0.14, sy, 0.03);
+          bk.rotation.y = (Math.random()-0.5)*0.1;
+          g.add(bk);
+        }
+      }
+      return g;
+    }
+    const shelf = mkShelf(); shelf.position.set(-3.2,0,1.5); scene.add(shelf);
+
+    // Frame
+    const fp = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.4,0.05),
+      new THREE.MeshStandardMaterial({color:0x8b6b4a, roughness:0.5}));
+    fp.position.set(-2.5,1.5,-5.4); scene.add(fp);
+    const pr = new THREE.Mesh(new THREE.PlaneGeometry(0.4,0.3),
+      new THREE.MeshStandardMaterial({color:0x88aa77}));
+    pr.position.set(-2.5,1.5,-5.42); scene.add(pr);
+
+    // Suitcase
+    function mkSuitcase(){
+      const g = new THREE.Group();
+      const m = new THREE.MeshStandardMaterial({color:0x4a3520,roughness:0.9});
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.3,0.35), m);
+      b.position.set(0,0.15,0); b.castShadow=true; g.add(b);
+      const lm = new THREE.MeshStandardMaterial({color:0x5c4428,roughness:0.8});
+      const l = new THREE.Mesh(new THREE.BoxGeometry(0.48,0.06,0.33), lm);
+      l.position.set(0,0.33,0); l.rotation.x=0.3; g.add(l);
+      const clm = new THREE.MeshStandardMaterial({color:0x6688cc,roughness:0.9});
+      const cl = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.2,0.02), clm);
+      cl.position.set(0.1,0.15,0.15); cl.rotation.x=0.2; g.add(cl);
+      return g;
+    }
+    const sc = mkSuitcase(); sc.position.set(3.0,0,1.2); scene.add(sc);
+
+    // Aquarium
+    function mkAquarium(){
+      const g = new THREE.Group();
+      const tm = new THREE.MeshPhysicalMaterial({color:0x88ddff,transparent:true,opacity:0.12,roughness:0,metalness:0});
+      const t = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.5,0.4), tm);
+      t.position.set(0,0.25,0); g.add(t);
+      const wm3 = new THREE.MeshPhysicalMaterial({color:0x44aadd,transparent:true,opacity:0.25,roughness:0,metalness:0});
+      const w = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.2,0.35), wm3);
+      w.position.set(0,0.15,0); g.add(w);
+      const pm = new THREE.MeshStandardMaterial({color:0x2d8a3d});
+      for(let i=0;i<3;i++){
+        const p = new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.04,0.2+Math.random()*0.1,5), pm);
+        p.position.set(-0.15+Math.random()*0.3,0.1,-0.1+Math.random()*0.2); g.add(p);
+      }
+      const sm = new THREE.MeshStandardMaterial({color:0xff3333,roughness:0.3});
+      for(let i=0;i<8;i++){
+        const s = new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4), sm);
+        s.position.set(-0.15+Math.random()*0.3,0.08+Math.random()*0.25,-0.1+Math.random()*0.2); g.add(s);
+      }
+      return g;
+    }
+    scene.add(mkAquarium().position.set(-2.8,0,0.2));
+
+    // Monstera
+    function mkPlant(){
+      const g = new THREE.Group();
+      const pm2 = new THREE.MeshStandardMaterial({color:0xcc6633,roughness:0.8});
+      const pt = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.15,0.2,8), pm2);
+      pt.position.set(0,0.1,0); pt.castShadow=true; g.add(pt);
+      const lm2 = new THREE.MeshStandardMaterial({color:0x3a8a3a,roughness:0.8});
+      for(let i=0;i<5;i++){
+        const l = new THREE.Mesh(new THREE.SphereGeometry(0.1,5,5), lm2);
+        l.position.set((Math.random()-0.5)*0.2,0.2+Math.random()*0.2,(Math.random()-0.5)*0.2);
+        l.scale.set(1.5,0.3,1); l.rotation.x=Math.random()*0.5; l.rotation.z=Math.random()*0.5; g.add(l);
+      }
+      return g;
+    }
+    const plant = mkPlant(); plant.position.set(2.2,0,0); scene.add(plant);
+
+    // PAM AVATAR
+    function mkPam(){
+      const g = new THREE.Group();
+      const skin = new THREE.MeshStandardMaterial({color:0xf0d5b8, roughness:0.5});
+      const beige = new THREE.MeshStandardMaterial({color:0xd4a574, roughness:0.8});
+      const hairCol = new THREE.MeshStandardMaterial({color:0x3a2515, roughness:0.9});
+
+      // Torso (beige turtleneck)
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.45,8), beige);
+      torso.position.set(0,0.675,0); torso.castShadow=true; g.add(torso);
+
+      // Shoulders
+      for(let x of [-0.2,0.2]){
+        const s = new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6), beige);
+        s.position.set(x,0.88,0); g.add(s);
+      }
+
+      // Arms
+      for(let side of [-1,1]){
+        const ua = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.04,0.25,6), beige);
+        ua.position.set(side*0.28,0.78,0); ua.rotation.z=side*0.2; g.add(ua);
+        const fa = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.03,0.22,6), skin);
+        fa.position.set(side*0.30,0.55,0.05); fa.rotation.z=side*0.1; g.add(fa);
+      }
+
+      // Neck
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.07,0.06,6), skin);
+      neck.position.set(0,0.92,0); g.add(neck);
+
+      // Head
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.13,14,14), skin);
+      head.position.set(0,1.01,0); head.castShadow=true; g.add(head);
+
+      // Hair
+      const hm = new THREE.Mesh(new THREE.SphereGeometry(0.14,10,10), hairCol);
+      hm.position.set(0,1.03,-0.01); hm.scale.set(1.1,0.7,1.05); g.add(hm);
+      for(let side of [-1,1]){
+        const hs = new THREE.Mesh(new THREE.SphereGeometry(0.05,6,6), hairCol);
+        hs.position.set(side*0.13,0.97,0.02); hs.scale.set(1,1.3,0.8); g.add(hs);
+      }
+
+      // Eyes
+      const brown = new THREE.MeshStandardMaterial({color:0x4a3520, roughness:0.3});
+      const white = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.5});
+      for(let x of [-0.05,0.05]){
+        const ew = new THREE.Mesh(new THREE.SphereGeometry(0.025,6,6), white);
+        ew.position.set(x,1.03,0.11); g.add(ew);
+        const ep = new THREE.Mesh(new THREE.SphereGeometry(0.012,6,6), brown);
+        ep.position.set(x,1.03,0.125); g.add(ep);
+      }
+
+      // Nose hint
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.015,0.02,4),
+        new THREE.MeshStandardMaterial({color:0xe8c8a8, roughness:0.5}));
+      nose.position.set(0,0.995,0.125); g.add(nose);
+
+      // Mouth
+      const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.02,0.005,4,6),
+        new THREE.MeshStandardMaterial({color:0xcc8877,roughness:0.6}));
+      mouth.position.set(0,0.975,0.12); mouth.scale.set(1,0.4,0.3); g.add(mouth);
+
+      // Eyebrows
+      const bm = new THREE.MeshStandardMaterial({color:0x3a2515,roughness:0.8});
+      for(let x of [-0.05,0.05]){
+        const br = new THREE.Mesh(new THREE.BoxGeometry(0.03,0.005,0.008), bm);
+        br.position.set(x,1.055,0.115); g.add(br);
+      }
+
+      // Legs (dark jeans)
+      const dm = new THREE.MeshStandardMaterial({color:0x3a3530,roughness:0.7});
+      for(let x of [-0.08,0.08]){
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.04,0.45,6), dm);
+        leg.position.set(x,0.225,0); g.add(leg);
+      }
+
+      // Shoes
+      const shm = new THREE.MeshStandardMaterial({color:0x2a2515,roughness:0.9});
+      for(let x of [-0.08,0.08]){
+        const sh = new THREE.Mesh(new THREE.BoxGeometry(0.04,0.03,0.07), shm);
+        sh.position.set(x,0.015,0.02); g.add(sh);
+      }
+
+      return g;
+    }
+    const pam = mkPam();
+    pam.position.set(0,0,1.7);
+    scene.add(pam);
+
+    // BOSS AVATAR
+    function mkBoss(){
+      const g = new THREE.Group();
+      const skin = new THREE.MeshStandardMaterial({color:0xd4b898, roughness:0.5});
+
+      // Torso (black)
+      const black = new THREE.MeshStandardMaterial({color:0x222222, roughness:0.9});
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.28,0.55,8), black);
+      torso.position.set(0,0.775,0); torso.castShadow=true; g.add(torso);
+
+      for(let x of [-0.25,0.25]){
+        const s = new THREE.Mesh(new THREE.SphereGeometry(0.1,6,6), black);
+        s.position.set(x,1.0,0); g.add(s);
+      }
+
+      for(let side of [-1,1]){
+        const ua = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,6), black);
+        ua.position.set(side*0.32,0.86,0); ua.rotation.z=side*0.1; g.add(ua);
+        const fa = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.035,0.28,6), skin);
+        fa.position.set(side*0.34,0.58,0.03); fa.rotation.z=side*0.05; g.add(fa);
+      }
+
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.07,6), skin);
+      neck.position.set(0,1.07,0); g.add(neck);
+
+      // Head
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.16,14,14), skin);
+      head.position.set(0,1.19,0); head.castShadow=true; g.add(head);
+
+      // Hair
+      const hairCol = new THREE.MeshStandardMaterial({color:0x1a1510,roughness:0.9});
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.12,10,10), hairCol);
+      hair.position.set(0,1.22,-0.03); hair.scale.set(1.1,0.4,0.9); g.add(hair);
+
+      // Beard
+      const beardMat = new THREE.MeshStandardMaterial({color:0x3a3525,roughness:0.9});
+      const beard = new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8), beardMat);
+      beard.position.set(0,1.12,0.1); beard.scale.set(1.2,0.7,0.6); g.add(beard);
+
+      // Gray streaks
+      const grayMat = new THREE.MeshStandardMaterial({color:0x8a8575,roughness:0.9});
+      const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.02,4,4), grayMat);
+      s1.position.set(0.04,1.11,0.14); g.add(s1);
+      const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4), grayMat);
+      s2.position.set(-0.05,1.13,0.12); g.add(s2);
+
+      // Glasses
+      const gMat = new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.3,metalness:0.5});
+      const lMat = new THREE.MeshPhysicalMaterial({color:0x334466,transparent:true,opacity:0.3,roughness:0.1});
+      for(let x of [-0.08,0.08]){
+        const fr = new THREE.Mesh(new THREE.TorusGeometry(0.045,0.008,6,10), gMat);
+        fr.position.set(x,1.19,0.12); fr.rotation.x=-0.1; g.add(fr);
+        const le = new THREE.Mesh(new THREE.CircleGeometry(0.038,8), lMat);
+        le.position.set(x,1.19,0.125); le.rotation.x=-0.1; g.add(le);
+      }
+      const br = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.008,0.005), gMat);
+      br.position.set(0,1.195,0.125); g.add(br);
+
+      // Eyes
+      const brown = new THREE.MeshStandardMaterial({color:0x5c3a1e,roughness:0.3});
+      const white = new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.5});
+      for(let x of [-0.055,0.055]){
+        const ew = new THREE.Mesh(new THREE.SphereGeometry(0.025,6,6), white);
+        ew.position.set(x,1.21,0.1); g.add(ew);
+        const ep = new THREE.Mesh(new THREE.SphereGeometry(0.014,6,6), brown);
+        ep.position.set(x,1.21,0.115); g.add(ep);
+      }
+
+      // Nose
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.018,0.025,4),
+        new THREE.MeshStandardMaterial({color:0xc8a888,roughness:0.5}));
+      nose.position.set(0,1.17,0.12); g.add(nose);
+
+      // Mouth (warm smile)
+      const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.025,0.005,4,6),
+        new THREE.MeshStandardMaterial({color:0xcc8877,roughness:0.6}));
+      mouth.position.set(0,1.14,0.115); mouth.scale.set(1,0.4,0.3); g.add(mouth);
+
+      // Legs
+      const dm = new THREE.MeshStandardMaterial({color:0x2a3025,roughness:0.7});
+      for(let x of [-0.09,0.09]){
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.045,0.55,6), dm);
+        leg.position.set(x,0.275,0); g.add(leg);
+      }
+      const shm = new THREE.MeshStandardMaterial({color:0x2a2515,roughness:0.9});
+      for(let x of [-0.09,0.09]){
+        const sh = new THREE.Mesh(new THREE.BoxGeometry(0.045,0.035,0.08), shm);
+        sh.position.set(x,0.015,0.02); g.add(sh);
+      }
+
+      return g;
+    }
+    const boss = mkBoss();
+    boss.position.set(0,0,0); // standing near entrance
+    scene.add(boss);
+
+    // Particles (dust motes)
+    const pCount = 400;
+    const pos = new Float32Array(pCount*3);
+    for(let i=0; i<pCount*3; i++) pos[i] = (Math.random()-0.5)*8;
+    const pg = new THREE.BufferGeometry();
+    pg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const pm = new THREE.PointsMaterial({color:0xffdd88,size:0.02,transparent:true,opacity:0.4});
+    const particles = new THREE.Points(pg, pm);
     particles.position.y = 2;
     scene.add(particles);
 
-    // ── Window glow ──
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0xffaa44,
-      transparent: true,
-      opacity: 0.1,
-    });
-    for (let i = -2; i <= 2; i += 2) {
-      const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 2.8), glowMat);
-      glow.position.set(i, 2, -4.8);
-      scene.add(glow);
-    }
-
-    // ── Loading done ──
+    // Loading done
     document.getElementById('loading').style.display = 'none';
 
-    // ── Animation ──
+    // Animation
     let time = 0;
-    function animate() {
+    let msgTimeout = null;
+    function animate(){
       requestAnimationFrame(animate);
       time += 0.01;
 
-      // Gentle particle drift
-      const pos = particles.geometry.attributes.position.array;
-      for (let i = 0; i < pos.length; i += 3) {
-        pos[i+1] += Math.sin(time + i) * 0.0005;
+      // Particles drift
+      const ap = particles.geometry.attributes.position.array;
+      for(let i=0; i<ap.length; i+=3){
+        ap[i+1] += Math.sin(time + i) * 0.0005;
       }
       particles.geometry.attributes.position.needsUpdate = true;
 
-      // Avatar subtle sway
-      avatarGroup.rotation.y = Math.sin(time * 0.5) * 0.05;
+      // Pam subtle sway
+      pam.rotation.y = Math.sin(time*0.3) * 0.03;
+      pam.position.y = 0 + Math.sin(time*0.5) * 0.003;
+
+      // Boss subtle shift weight
+      boss.rotation.z = Math.sin(time*0.4) * 0.01;
 
       controls.update();
       renderer.render(scene, camera);
     }
     animate();
 
-    // ── Resize ──
+    // Click Pam reactions
+    const bubble = document.getElementById('bubble');
+    const reacts = [
+      "Hey Boss 🥰", "Stop staring 😏", "Welcome home!", "Want some banana bread?",
+      "Hoagie says hi!", "The Borg approve 🦐", "You found me!",
+      "Stop clicking me!", "... 😏", "Getting hungry?"
+    ];
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    renderer.domElement.addEventListener('click', (e) => {
+      pointer.x = (e.clientX/window.innerWidth)*2-1;
+      pointer.y = -(e.clientY/window.innerHeight)*2+1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(pam.children, true);
+      if(hits.length){
+        if(msgTimeout) clearTimeout(msgTimeout);
+        bubble.textContent = reacts[Math.floor(Math.random()*reacts.length)];
+        bubble.classList.add('show');
+        msgTimeout = setTimeout(() => bubble.classList.remove('show'), 2500);
+      }
+    });
+
+    // Resize
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = window.innerWidth/window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // Welcome message
+    setTimeout(() => {
+      bubble.textContent = "Welcome to my apartment, Boss 🌇";
+      bubble.classList.add('show');
+      setTimeout(() => bubble.classList.remove('show'), 3000);
+    }, 1000);
+
   </script>
 </body>
 </html>
