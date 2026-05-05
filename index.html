@@ -347,7 +347,7 @@
       return g;
     }
     const pam = mkPam();
-    pam.position.set(-1.5,0,1.2);
+    pam.position.set(-1.5,0,0.8);
     scene.add(pam);
 
     // BOSS AVATAR
@@ -443,7 +443,7 @@
       return g;
     }
     const boss = mkBoss();
-    boss.position.set(1.5,0,1.2); // standing facing Pam, rotated toward her
+    boss.position.set(1.5,0,0.8); // standing facing Pam, rotated toward her
     scene.add(boss);
 
     // Particles (dust motes)
@@ -475,11 +475,11 @@
       particles.geometry.attributes.position.needsUpdate = true;
 
       // Pam subtle sway
-      pam.rotation.y = Math.PI + Math.sin(time*0.3) * 0.03;
+      pam.rotation.y = Math.PI/2 + Math.sin(time*0.3) * 0.03; // 90° right facing Boss
       pam.position.y = 0 + Math.sin(time*0.5) * 0.003;
 
       // Boss subtle shift weight
-      boss.rotation.y = Math.PI + Math.sin(time*0.4) * 0.02; boss.rotation.z = Math.sin(time*0.3) * 0.01;
+      boss.rotation.y = -Math.PI/2 + Math.sin(time*0.4) * 0.02; // 90° left facing Pam boss.rotation.z = Math.sin(time*0.3) * 0.01;
 
       controls.update();
       renderer.render(scene, camera);
