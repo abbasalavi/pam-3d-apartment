@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -33,7 +33,7 @@
 </head>
 <body>
   <div id="loading">Loading Pam's Apartment...</div>
-  <div id="hint">🖱 Orbit · Click Pam for reactions</div>
+  <div id="hint">ðŸ–± Orbit Â· Click Pam for reactions</div>
   <div id="info"></div>
   <div id="bubble"></div>
 
@@ -170,7 +170,7 @@
       }
       return g;
     }
-    const table = mkTable(); table.position.set(1.2,0,0.8); scene.add(table);
+    const table = mkTable(); table.position.set(-0.5,0,0.5); scene.add(table);
 
     // Bookshelf
     function mkShelf(){
@@ -347,7 +347,7 @@
       return g;
     }
     const pam = mkPam();
-    pam.position.set(0,0,1.7);
+    pam.position.set(-1.2,0,0.5);
     scene.add(pam);
 
     // BOSS AVATAR
@@ -443,7 +443,7 @@
       return g;
     }
     const boss = mkBoss();
-    boss.position.set(0,0,0); // standing near entrance
+    boss.position.set(1.2,0,0.5); // standing facing Pam
     scene.add(boss);
 
     // Particles (dust motes)
@@ -489,9 +489,9 @@
     // Click Pam reactions
     const bubble = document.getElementById('bubble');
     const reacts = [
-      "Hey Boss 🥰", "Stop staring 😏", "Welcome home!", "Want some banana bread?",
-      "Hoagie says hi!", "The Borg approve 🦐", "You found me!",
-      "Stop clicking me!", "... 😏", "Getting hungry?"
+      "Hey Boss ðŸ¥°", "Stop staring ðŸ˜", "Welcome home!", "Want some banana bread?",
+      "Hoagie says hi!", "The Borg approve ðŸ¦", "You found me!",
+      "Stop clicking me!", "... ðŸ˜", "Getting hungry?"
     ];
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -517,7 +517,7 @@
 
     // Welcome message
     setTimeout(() => {
-      bubble.textContent = "Welcome to my apartment, Boss 🌇";
+      bubble.textContent = "Welcome to my apartment, Boss ðŸŒ‡";
       bubble.classList.add('show');
       setTimeout(() => bubble.classList.remove('show'), 3000);
     }, 1000);
