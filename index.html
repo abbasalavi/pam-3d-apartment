@@ -655,7 +655,7 @@
         pam.rotation.y = 0;
         scene.add(pam);
       }
-    }, 8000);
+    }, 30000);
 
     loader.load('TPKCK6RG0HBCF6RKX9YQHQAO6.glb', (gltf) => {
       clearTimeout(pamFallbackTimer);
@@ -721,7 +721,7 @@
         boss.rotation.y = Math.PI;
         scene.add(boss);
       }
-    }, 8000);
+    }, 30000);
 
     loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
       clearTimeout(bossFallbackTimer);
@@ -738,6 +738,8 @@
         bossMixer = new THREE.AnimationMixer(boss);
         const action = bossMixer.clipAction(gltf.animations[0]);
         action.play();
+      } else {
+        console.log('Boss GLB has no animations (static model)');
       }
     }, undefined, (err) => {
       clearTimeout(bossFallbackTimer);
