@@ -167,39 +167,12 @@
     lw.material = new THREE.MeshStandardMaterial({color:0xf5ede5, roughness:0.95, side:THREE.DoubleSide});
     scene.add(lw);
 
-    // Right wall (glass door to terrace)
-    const glassDoorMat = new THREE.MeshPhysicalMaterial({
-      color: 0x88ddff, transparent: true, opacity: 0.4,
-      roughness: 0.05, metalness: 0,
-      side: THREE.DoubleSide
-    });
-    const glassDoorFrame = mat(0xc4956a, {roughness:0.5});
-
-    // Right wall -- glass door section (hole for the door)
-    const rwTop = wall(3.5, 1.5);
-    rwTop.position.set(5.5, 3.0, 0.5); rwTop.castShadow = false;
-    rwTop.rotation.y = -Math.PI/2;
-    scene.add(rwTop);
-
-    // Glass door panels
-    for(let y of [-0.6, 0, 0.6]){
-      const gd = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.0, 0.8), glassDoorMat);
-      gd.position.set(5.48, 1.5 + y, -0.1 + y*0.2);
-      scene.add(gd);
-    }
-    // Door frame
-    const dfL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 0.06), glassDoorFrame);
-    dfL.position.set(5.48, 1.2, -0.7);
-    scene.add(dfL);
-    const dfR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 0.06), glassDoorFrame);
-    dfR.position.set(5.48, 1.2, 0.9);
-    scene.add(dfR);
-
-    // Short right wall sections beside door
-    const rwFront = wall(2.5, 4.5);
-    rwFront.position.set(5.5, 2.25, 2.2); rwFront.castShadow = false; rwFront.receiveShadow = false;
-    rwFront.rotation.y = -Math.PI/2;
-    scene.add(rwFront);
+    //     // Right wall (full solid wall - terrace behind)
+    const rwFull = wall(9, 4.5);
+    rwFull.position.set(5.5, 2.25, 0.5);
+    rwFull.rotation.y = -Math.PI/2;
+    rwFull.material = new THREE.MeshStandardMaterial({color:0xf0e8df, roughness:0.9, side:THREE.DoubleSide});
+    scene.add(rwFull);
 
     // ------------------------------------------------------------------------------------------
     // KITCHEN (left side of apartment)
