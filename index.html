@@ -151,7 +151,7 @@
     // ------------------------------------------------------------------------------------------
     // WALLS -- Living Room (full back wall)
     // ------------------------------------------------------------------------------------------
-    const wm = mat(0xf0e8df, {roughness:0.9});
+    const wm = new THREE.MeshStandardMaterial({color:0xf0e8df, roughness:0.9, side: THREE.DoubleSide});
     function wall(w,h,color) { return new THREE.Mesh(new THREE.PlaneGeometry(w,h), color || wm); }
 
     // Back wall (west-facing -- windows here)
@@ -639,13 +639,7 @@
       );
       scene.add(b);
     }
-    // Distant sky glow
-    const skyGlow = new THREE.Mesh(
-      new THREE.PlaneGeometry(6, 3),
-      new THREE.MeshBasicMaterial({color:0x443366, transparent:true, opacity:0.15})
-    );
-    skyGlow.position.set(7.8, 1.5, -3.8);
-    scene.add(skyGlow);
+
 
     // ------------------------------------------------------------------------------------------
         // PAM AVATAR (GLB -- Ready Player Me)
