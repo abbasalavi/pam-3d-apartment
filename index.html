@@ -157,12 +157,14 @@
     // Back wall (west-facing -- windows here)
     const backWall = wall(12, 4.5);
     backWall.position.set(0, 2.25, -4.5);
+    backWall.material = new THREE.MeshStandardMaterial({color:0xf0e8df, roughness:0.95, side:THREE.DoubleSide});
     scene.add(backWall);
 
     // Left wall (divides living room from kitchen area)
     const lw = wall(9, 4.5);
     lw.position.set(-5.5, 2.25, 0.5);
     lw.rotation.y = Math.PI/2;
+    lw.material = new THREE.MeshStandardMaterial({color:0xf5ede5, roughness:0.95, side:THREE.DoubleSide});
     scene.add(lw);
 
     // Right wall (glass door to terrace)
