@@ -70,7 +70,7 @@
 
     const renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
@@ -93,7 +93,7 @@
 
     const sun = new THREE.DirectionalLight(0xff9944, 1.8);
     sun.position.set(-2, 8, 6);
-    sun.castShadow = true;
+    sun.castShadow = false;
     sun.shadow.mapSize.set(2048,2048);
     sun.shadow.camera.near = 0.1; sun.shadow.camera.far = 40;
     sun.shadow.camera.left = -12; sun.shadow.camera.right = 12;
