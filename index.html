@@ -94,10 +94,10 @@
     const sun = new THREE.DirectionalLight(0xff9944, 2.5);
     sun.position.set(-2, 8, 6);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024,1024);
-    sun.shadow.camera.near = 0.1; sun.shadow.camera.far = 30;
-    sun.shadow.camera.left = -8; sun.shadow.camera.right = 8;
-    sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
+    sun.shadow.mapSize.set(2048,2048);
+    sun.shadow.camera.near = 0.1; sun.shadow.camera.far = 40;
+    sun.shadow.camera.left = -12; sun.shadow.camera.right = 12;
+    sun.shadow.camera.top = 12; sun.shadow.camera.bottom = -12;
     scene.add(sun);
 
     scene.add(new THREE.DirectionalLight(0x88aaff, 0.3).position.set(3,2,-3));
