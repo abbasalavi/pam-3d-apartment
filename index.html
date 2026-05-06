@@ -646,41 +646,39 @@
       "I was just thinking about you",
     ];
 
-    // Pam GLB load with timeout fallback
+    // Pam GLB load with fallback removal
+    let pamFallbackInst = null;
     const pamFallbackTimer = setTimeout(() => {
       if(!pam){
-        console.warn('Pam GLB load timed out, using fallback');
-        pam = mkPamFallback();
-        pam.position.set(-1.5, 0, 1.2);
-        pam.rotation.y = 0;
-        scene.add(pam);
+        pamFallbackInst = mkPamFallback();
+        pamFallbackInst.position.set(-1.5, 0.88, 1.2);
+        pamFallbackInst.rotation.y = 0;
+        scene.add(pamFallbackInst);
       }
     }, 30000);
 
     loader.load('TPKCK6RG0HBCF6RKX9YQHQAO6.glb', (gltf) => {
       clearTimeout(pamFallbackTimer);
+      if(pamFallbackInst){ scene.remove(pamFallbackInst); pamFallbackInst = null; }
       pam = gltf.scene;
       pam.scale.set(1.0, 1.0, 1.0);
-      pam.position.set(-1.5, 0, 1.2);
+      pam.position.set(-1.5, 0.88, 1.2);
       pam.rotation.y = 0;
-      pam.traverse(child => {
-        if(child.isMesh) child.castShadow = true;
-      });
+      pam.traverse(child => { if(child.isMesh) child.castShadow = true; });
       scene.add(pam);
-
       if(gltf.animations && gltf.animations.length > 0){
         pamAnimations = gltf.animations;
         pamMixer = new THREE.AnimationMixer(pam);
-        const action = pamMixer.clipAction(gltf.animations[0]);
-        action.play();
+        pamMixer.clipAction(gltf.animations[0]).play();
       }
     }, undefined, (err) => {
       clearTimeout(pamFallbackTimer);
-      console.warn('Pam GLB load error, using fallback:', err);
-      pam = mkPamFallback();
-      pam.position.set(-1.5, 0, 1.2);
-      pam.rotation.y = 0;
-      scene.add(pam);
+      if(!pamFallbackInst){
+        pamFallbackInst = mkPamFallback();
+        pamFallbackInst.position.set(-1.5, 0.88, 1.2);
+        pamFallbackInst.rotation.y = 0;
+        scene.add(pamFallbackInst);
+      }
     });
 
     function mkPamFallback(){
@@ -712,42 +710,40 @@
     let boss = null;
     let bossMixer = null;
 
-    // Boss GLB load with timeout fallback
+    // Boss GLB load with fallback removal
+    let bossFallbackInst = null;
     const bossFallbackTimer = setTimeout(() => {
       if(!boss){
-        console.warn('Boss GLB load timed out, using fallback');
-        boss = mkBossFallback();
-        boss.position.set(1.5, 0, 1.2);
-        boss.rotation.y = Math.PI;
-        scene.add(boss);
+        bossFallbackInst = mkBossFallback();
+        bossFallbackInst.position.set(1.5, 0.85, 1.2);
+        bossFallbackInst.rotation.y = Math.PI;
+        scene.add(bossFallbackInst);
       }
     }, 30000);
 
     loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
       clearTimeout(bossFallbackTimer);
+      if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
       boss = gltf.scene;
       boss.scale.set(1.0, 1.0, 1.0);
-      boss.position.set(1.5, 0, 1.2);
+      boss.position.set(1.5, 0.85, 1.2);
       boss.rotation.y = Math.PI;
-      boss.traverse(child => {
-        if(child.isMesh) child.castShadow = true;
-      });
+      boss.traverse(child => { if(child.isMesh) child.castShadow = true; });
       scene.add(boss);
-
       if(gltf.animations && gltf.animations.length > 0){
         bossMixer = new THREE.AnimationMixer(boss);
-        const action = bossMixer.clipAction(gltf.animations[0]);
-        action.play();
+        bossMixer.clipAction(gltf.animations[0]).play();
       } else {
         console.log('Boss GLB has no animations (static model)');
       }
     }, undefined, (err) => {
       clearTimeout(bossFallbackTimer);
-      console.warn('Boss GLB load error, using fallback:', err);
-      boss = mkBossFallback();
-      boss.position.set(1.5, 0, 1.2);
-      boss.rotation.y = Math.PI;
-      scene.add(boss);
+      if(!bossFallbackInst){
+        bossFallbackInst = mkBossFallback();
+        bossFallbackInst.position.set(1.5, 0.85, 1.2);
+        bossFallbackInst.rotation.y = Math.PI;
+        scene.add(bossFallbackInst);
+      }
     });
 
     function mkBossFallback(){
