@@ -701,13 +701,34 @@
       return g;
     }
 
-    // --
-    // BOSS AVATAR (v3 -- refined)
+        // BOSS AVATAR (GLB -- rigmodels)
+    let boss = null;
+    let bossMixer = null;
 
-    // --
-    // BOSS AVATAR (v3 -- refined)
-    // --
-    function mkBoss(){
+    loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
+      boss = gltf.scene;
+      boss.scale.set(1.0, 1.0, 1.0);
+      boss.position.set(1.5, 0, 1.2);
+      boss.rotation.y = Math.PI;
+      boss.traverse(child => {
+        if(child.isMesh) child.castShadow = true;
+      });
+      scene.add(boss);
+
+      if(gltf.animations && gltf.animations.length > 0){
+        bossMixer = new THREE.AnimationMixer(boss);
+        const action = bossMixer.clipAction(gltf.animations[0]);
+        action.play();
+      }
+    }, undefined, (err) => {
+      console.warn('Boss GLB load failed, using mkBossFallback:', err);
+      boss = mkBossFallback();
+      boss.position.set(1.5, 0, 1.2);
+      boss.rotation.y = Math.PI;
+      scene.add(boss);
+    });
+
+    function mkBossFallback(){
       const g = new THREE.Group();
       const skin = mat(0xd4b898, {roughness:0.5});
       const black = mat(0x222222, {roughness:0.9});
@@ -717,60 +738,21 @@
         const s = new THREE.Mesh(new THREE.SphereGeometry(0.1,6,6), black);
         s.position.set(x,1.0,0); g.add(s);
       }
-      for(let side of [-1,1]){
-        const ua = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,6), black);
-        ua.position.set(side*0.32,0.86,0); ua.rotation.z=side*0.1; g.add(ua);
-        const fa = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.035,0.28,6), skin);
-        fa.position.set(side*0.34,0.58,0.03); fa.rotation.z=side*0.05; g.add(fa);
-      }
       const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.07,6), skin);
       neck.position.set(0,1.07,0); g.add(neck);
       const head = new THREE.Mesh(new THREE.SphereGeometry(0.16,14,14), skin);
       head.position.set(0,1.19,0); head.castShadow=true; g.add(head);
-      const hairCol = mat(0x1a1510, {roughness:0.9});
-      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.12,10,10), hairCol);
-      hair.position.set(0,1.22,-0.03); hair.scale.set(1.1,0.4,0.9); g.add(hair);
-      const beardMat = mat(0x3a3525, {roughness:0.9});
-      const beard = new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8), beardMat);
-      beard.position.set(0,1.12,0.1); beard.scale.set(1.2,0.7,0.6); g.add(beard);
-      const grayMat = mat(0x8a8575, {roughness:0.9});
-      for(let pos of [[0.04,1.11,0.14],[-0.05,1.13,0.12],[0.08,1.10,0.10],[-0.07,1.09,0.13]]){
-        const s = new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4), grayMat);
-        s.position.set(pos[0],pos[1],pos[2]); g.add(s);
-      }
-      const gMat = mat(0x1a1a1a, {roughness:0.3, metalness:0.5});
-      const gGlass = new THREE.MeshPhysicalMaterial({color:0x88ccff, transparent:true, opacity:0.06, roughness:0});
-      for(let x of [-0.08,0.08]){
-        const r = new THREE.Mesh(new THREE.TorusGeometry(0.045,0.008,6,10), gMat);
-        r.position.set(x,1.19,0.13); r.rotation.x=0.1; r.rotation.y=0.05; g.add(r);
-        const l = new THREE.Mesh(new THREE.CircleGeometry(0.035,8), gGlass);
-        l.position.set(x,1.19,0.14); g.add(l);
-      }
-      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.008,0.008), gMat);
-      bridge.position.set(0,1.19,0.14); g.add(bridge);
-      const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.025,0.006,4,6), mat(0xaa7766,{roughness:0.6}));
-      mouth.position.set(0,1.10,0.13); mouth.scale.set(1,0.5,0.3); g.add(mouth);
+      const hc = mat(0x1a1510, {roughness:0.9});
+      const ht = new THREE.Mesh(new THREE.SphereGeometry(0.12,10,10), hc);
+      ht.position.set(0,1.22,-0.03); ht.scale.set(1.1,0.4,0.9); g.add(ht);
       const dm = mat(0x3a3530, {roughness:0.7});
       for(let x of [-0.10,0.10]){
         const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.55,6), dm);
         leg.position.set(x,0.225,0); g.add(leg);
       }
-      const shm = mat(0x2a2515, {roughness:0.9});
-      for(let x of [-0.10,0.10]){
-        const sh = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.03,0.08), shm);
-        sh.position.set(x,0.015,0.02); g.add(sh);
-      }
       return g;
     }
-    const boss = mkBoss();
-    boss.position.set(1.5, 0, 1.2);
-    boss.rotation.y = Math.PI;
-    scene.add(boss);
 
-
-    // --
-    // WALK CONTROLS (WASD)
-    // ------------------------------------------------------------------------------------------
     const walkState = { forward:false, backward:false, left:false, right:false, sprint:false };
     const WALK_SPEED = 2.5;
     const SPRINT_MULT = 2.0;
