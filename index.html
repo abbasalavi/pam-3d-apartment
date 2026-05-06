@@ -89,9 +89,9 @@
     // ------------------------------------------------------------------------------------------
     // LIGHTS
     // ------------------------------------------------------------------------------------------
-    scene.add(new THREE.AmbientLight(0xffeedd, 0.4));
+    scene.add(new THREE.AmbientLight(0xffeedd, 0.6));
 
-    const sun = new THREE.DirectionalLight(0xff9944, 2.5);
+    const sun = new THREE.DirectionalLight(0xff9944, 1.8);
     sun.position.set(-2, 8, 6);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048,2048);
@@ -176,7 +176,7 @@
 
     // Right wall -- glass door section (hole for the door)
     const rwTop = wall(3.5, 1.5);
-    rwTop.position.set(5.5, 3.0, 0.5);
+    rwTop.position.set(5.5, 3.0, 0.5); rwTop.castShadow = false;
     rwTop.rotation.y = -Math.PI/2;
     scene.add(rwTop);
 
@@ -196,7 +196,7 @@
 
     // Short right wall sections beside door
     const rwFront = wall(2.5, 4.5);
-    rwFront.position.set(5.5, 2.25, 2.2); rwFront.receiveShadow = false;
+    rwFront.position.set(5.5, 2.25, 2.2); rwFront.castShadow = false; rwFront.receiveShadow = false;
     rwFront.rotation.y = -Math.PI/2;
     scene.add(rwFront);
 
@@ -583,14 +583,15 @@
     for(let rp of railPositions){
       const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.0, 0.08), railMat);
       rail.position.set(rp.x, 0.5, rp.z);
+      rail.castShadow = false;
       scene.add(rail);
     }
     // Top railing bar
     const topRail = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.04, 0.04), railMat);
-    topRail.position.set(7.8, 1.0, -3.0);
+    topRail.position.set(7.8, 1.0, -3.0); topRail.castShadow = false;
     scene.add(topRail);
     const topRail2 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 5.2), railMat);
-    topRail2.position.set(9.8, 1.0, -0.5);
+    topRail2.position.set(9.8, 1.0, -0.5); topRail2.castShadow = false;
     scene.add(topRail2);
 
     // Terrace table (where the second round happened)
