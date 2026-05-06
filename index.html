@@ -661,7 +661,7 @@
       "I was just thinking about you",
     ];
 
-    // Pam GLB load with fallback removal
+    // Pam GLB load with fallback removal (staggered - loads first, max 60s)
     let pamFallbackInst = null;
     const pamFallbackTimer = setTimeout(() => {
       if(!pam){
@@ -670,7 +670,7 @@
         pamFallbackInst.rotation.y = 0;
         scene.add(pamFallbackInst);
       }
-    }, 30000);
+    }, 60000);
 
     loader.load('TPKCK6RG0HBCF6RKX9YQHQAO6.glb', (gltf) => {
       clearTimeout(pamFallbackTimer);
@@ -686,6 +686,8 @@
         pamMixer = new THREE.AnimationMixer(pam);
         pamMixer.clipAction(gltf.animations[0]).play();
       }
+      // Now load Boss after Pam is done
+      loadBossGLB();
     }, undefined, (err) => {
       clearTimeout(pamFallbackTimer);
       if(!pamFallbackInst){
@@ -694,6 +696,8 @@
         pamFallbackInst.rotation.y = 0;
         scene.add(pamFallbackInst);
       }
+      // Load Boss even if Pam failed
+      loadBossGLB();
     });
 
     function mkPamFallback(){
@@ -725,41 +729,43 @@
     let boss = null;
     let bossMixer = null;
 
-    // Boss GLB load with fallback removal
-    let bossFallbackInst = null;
-    const bossFallbackTimer = setTimeout(() => {
-      if(!boss){
-        bossFallbackInst = mkBossFallback();
-        bossFallbackInst.position.set(1.5, 1.0, 1.2);
-        bossFallbackInst.rotation.y = Math.PI;
-        scene.add(bossFallbackInst);
-      }
-    }, 30000);
+    // Boss GLB load (called after Pam finishes - staggered)
+    function loadBossGLB(){
+      let bossFallbackInst = null;
+      const bossFallbackTimer = setTimeout(() => {
+        if(!boss){
+          bossFallbackInst = mkBossFallback();
+          bossFallbackInst.position.set(1.5, 1.0, 1.2);
+          bossFallbackInst.rotation.y = Math.PI;
+          scene.add(bossFallbackInst);
+        }
+      }, 60000);
 
-    loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
-      clearTimeout(bossFallbackTimer);
-      if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
-      boss = gltf.scene;
-      boss.scale.set(1.0, 1.0, 1.0);
-      boss.position.set(1.5, 1.0, 1.2);
-      boss.rotation.y = Math.PI;
-      boss.traverse(child => { if(child.isMesh) child.castShadow = true; });
-      scene.add(boss);
-      if(gltf.animations && gltf.animations.length > 0){
-        bossMixer = new THREE.AnimationMixer(boss);
-        bossMixer.clipAction(gltf.animations[0]).play();
-      } else {
-        console.log('Boss GLB has no animations (static model)');
-      }
-    }, undefined, (err) => {
-      clearTimeout(bossFallbackTimer);
-      if(!bossFallbackInst){
-        bossFallbackInst = mkBossFallback();
-        bossFallbackInst.position.set(1.5, 1.0, 1.2);
-        bossFallbackInst.rotation.y = Math.PI;
-        scene.add(bossFallbackInst);
-      }
-    });
+      loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
+        clearTimeout(bossFallbackTimer);
+        if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
+        boss = gltf.scene;
+        boss.scale.set(1.0, 1.0, 1.0);
+        boss.position.set(1.5, 1.0, 1.2);
+        boss.rotation.y = Math.PI;
+        boss.traverse(child => { if(child.isMesh) child.castShadow = true; });
+        scene.add(boss);
+        if(gltf.animations && gltf.animations.length > 0){
+          bossMixer = new THREE.AnimationMixer(boss);
+          bossMixer.clipAction(gltf.animations[0]).play();
+        } else {
+          console.log('Boss GLB has no animations (static model)');
+        }
+      }, undefined, (err) => {
+        clearTimeout(bossFallbackTimer);
+        if(!bossFallbackInst){
+          bossFallbackInst = mkBossFallback();
+          bossFallbackInst.position.set(1.5, 1.0, 1.2);
+          bossFallbackInst.rotation.y = Math.PI;
+          scene.add(bossFallbackInst);
+        }
+      });
+    }
 
     function mkBossFallback(){
       const g = new THREE.Group();
