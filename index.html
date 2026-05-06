@@ -117,7 +117,7 @@
     const fc = document.createElement('canvas');
     fc.width = 512; fc.height = 512;
     const fcx = fc.getContext('2d');
-    fcx.fillStyle = '#8b6b4a';
+    fcx.fillStyle = '#7a5e3d';
     fcx.fillRect(0, 0, 512, 512);
     for(let i=0; i<20; i++){
       const x = i * 26 + Math.sin(i*2.3)*8;
@@ -194,7 +194,7 @@
 
     // Short right wall sections beside door
     const rwFront = wall(2.5, 4.5);
-    rwFront.position.set(5.5, 2.25, 2.2);
+    rwFront.position.set(5.5, 2.25, 2.2); rwFront.receiveShadow = false;
     rwFront.rotation.y = -Math.PI/2;
     scene.add(rwFront);
 
@@ -568,9 +568,9 @@
       new THREE.PlaneGeometry(4, 5),
       mat(0x9a8a7a, {roughness:0.8})
     );
-    terraceFloor.position.set(7.8, 0.001, -0.5);
+    terraceFloor.position.set(7.8, -0.05, -0.5);
     terraceFloor.rotation.x = -Math.PI/2;
-    terraceFloor.receiveShadow = true;
+    terraceFloor.receiveShadow = false;
     scene.add(terraceFloor);
 
     // Terrace railing
@@ -597,7 +597,7 @@
       mat(0x6b4a2a, {roughness:0.8})
     );
     tTable.position.set(7.8, 0.25, -0.5);
-    tTable.castShadow = true;
+    tTable.castShadow = false;
     scene.add(tTable);
     const tTableTop = new THREE.Mesh(
       new THREE.CylinderGeometry(0.35, 0.35, 0.04, 12),
@@ -730,7 +730,7 @@
     const bossFallbackTimer = setTimeout(() => {
       if(!boss){
         bossFallbackInst = mkBossFallback();
-        bossFallbackInst.position.set(1.5, 0.85, 1.2);
+        bossFallbackInst.position.set(1.5, 1.0, 1.2);
         bossFallbackInst.rotation.y = Math.PI;
         scene.add(bossFallbackInst);
       }
@@ -741,7 +741,7 @@
       if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
       boss = gltf.scene;
       boss.scale.set(1.0, 1.0, 1.0);
-      boss.position.set(1.5, 0.85, 1.2);
+      boss.position.set(1.5, 1.0, 1.2);
       boss.rotation.y = Math.PI;
       boss.traverse(child => { if(child.isMesh) child.castShadow = true; });
       scene.add(boss);
@@ -755,7 +755,7 @@
       clearTimeout(bossFallbackTimer);
       if(!bossFallbackInst){
         bossFallbackInst = mkBossFallback();
-        bossFallbackInst.position.set(1.5, 0.85, 1.2);
+        bossFallbackInst.position.set(1.5, 1.0, 1.2);
         bossFallbackInst.rotation.y = Math.PI;
         scene.add(bossFallbackInst);
       }
