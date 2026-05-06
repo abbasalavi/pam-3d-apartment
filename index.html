@@ -63,7 +63,7 @@
     // ------------------------------------------------------------------------------------------
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe8c9a0);
-    scene.fog = new THREE.Fog(0xe8c9a0, 14, 22);
+    scene.fog = new THREE.Fog(0xe8c9a0, 18, 30);
 
     const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
     camera.position.set(3, 2.2, 5);
@@ -95,7 +95,7 @@
     sun.position.set(-2, 8, 6);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024,1024);
-    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 20;
+    sun.shadow.camera.near = 0.1; sun.shadow.camera.far = 30;
     sun.shadow.camera.left = -8; sun.shadow.camera.right = 8;
     sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
     scene.add(sun);
@@ -113,20 +113,41 @@
     // ------------------------------------------------------------------------------------------
     // MAIN FLOOR (expanded -- 14x10)
     // ------------------------------------------------------------------------------------------
-    const floorMat = mat(0x8b6b4a, {roughness:0.6, metalness:0.05});
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), floorMat);
-    floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
+    // Procedural hardwood floor texture
+    const fc = document.createElement('canvas');
+    fc.width = 512; fc.height = 512;
+    const fcx = fc.getContext('2d');
+    fcx.fillStyle = '#8b6b4a';
+    fcx.fillRect(0, 0, 512, 512);
+    for(let i=0; i<20; i++){
+      const x = i * 26 + Math.sin(i*2.3)*8;
+      fcx.strokeStyle = '#7a5e3d';
+      fcx.lineWidth = 1.5;
+      fcx.beginPath();
+      fcx.moveTo(x, 0);
+      fcx.lineTo(x, 512);
+      fcx.stroke();
+      for(let j=0; j<80; j++){
+        fcx.fillStyle = 'rgba(80,60,40,' + (Math.random()*0.08) + ')';
+        fcx.fillRect(x + Math.random()*24 - 12, Math.random()*512, 3, 20 + Math.random()*30);
+      }
+    }
+    for(let i=0; i<200; i++){
+      fcx.fillStyle = 'rgba(60,45,30,' + (Math.random()*0.04) + ')';
+      fcx.fillRect(Math.random()*512, Math.random()*512, 30+Math.random()*60, 2+Math.random()*4);
+    }
+    const floorTex = new THREE.CanvasTexture(fc);
+    floorTex.wrapS = THREE.RepeatWrapping;
+    floorTex.wrapT = THREE.RepeatWrapping;
+    floorTex.repeat.set(4, 3);
+    const floorMat2 = new THREE.MeshStandardMaterial({
+      map: floorTex, roughness:0.7, metalness:0.02,
+    });
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), floorMat2);
+    floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; floor.renderOrder = 0;
     scene.add(floor);
 
-    // Floorboards
-    const lbm = new THREE.LineBasicMaterial({color:0x7a5e3d, transparent:true, opacity:0.12});
-    for(let x=-6.5; x<=6.5; x+=0.4){
-      const g = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(x,0.01,-4.5), new THREE.Vector3(x,0.01,4.5)
-      ]);
-      scene.add(new THREE.Line(g,lbm));
-    }
-
+    
     // ------------------------------------------------------------------------------------------
     // WALLS -- Living Room (full back wall)
     // ------------------------------------------------------------------------------------------
@@ -262,7 +283,7 @@
       const cm = mat(0x2d5a3d, {roughness:0.85});
       const csm = mat(0x3a6b4a, {roughness:0.95});
       const b = new THREE.Mesh(new THREE.BoxGeometry(3.0,0.6,1.0), cm);
-      b.position.set(0,0.3,0); b.castShadow=true; b.receiveShadow=true; g.add(b);
+      b.position.set(0,0.3,0); b.castShadow=true; b.receiveShadow=true; b.renderOrder=1; g.add(b);
       const bk = new THREE.Mesh(new THREE.BoxGeometry(3.0,0.7,0.25), cm);
       bk.position.set(0,0.65,0.55); bk.castShadow=true; g.add(bk);
       for(let x of [-1.55,1.55]){
