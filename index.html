@@ -56,10 +56,11 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // SCENE SETUP
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe8c9a0);
     scene.fog = new THREE.Fog(0xe8c9a0, 14, 22);
@@ -75,7 +76,7 @@
     renderer.toneMappingExposure = 1.0;
     document.body.appendChild(renderer.domElement);
 
-    // Controls — hybrid orbit + WASD
+    // Controls -- hybrid orbit + WASD
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 1.0, 0);
     controls.enableDamping = true;
@@ -85,9 +86,9 @@
     controls.maxDistance = 10;
     controls.update();
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // LIGHTS
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     scene.add(new THREE.AmbientLight(0xffeedd, 0.4));
 
     const sun = new THREE.DirectionalLight(0xff9944, 2.5);
@@ -102,16 +103,16 @@
     scene.add(new THREE.DirectionalLight(0x88aaff, 0.3).position.set(3,2,-3));
     scene.add(new THREE.DirectionalLight(0xff6633, 0.4).position.set(3,1,-4));
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // HELPER: simple material maker
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mat(color, opts = {}) {
       return new THREE.MeshStandardMaterial({color, roughness:0.7, metalness:0, ...opts});
     }
 
-    // ─────────────────────────────────────────────
-    // MAIN FLOOR (expanded — 14x10)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
+    // MAIN FLOOR (expanded -- 14x10)
+    // ------------------------------------------------------------------------------------------
     const floorMat = mat(0x8b6b4a, {roughness:0.6, metalness:0.05});
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), floorMat);
     floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
@@ -126,13 +127,13 @@
       scene.add(new THREE.Line(g,lbm));
     }
 
-    // ─────────────────────────────────────────────
-    // WALLS — Living Room (full back wall)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
+    // WALLS -- Living Room (full back wall)
+    // ------------------------------------------------------------------------------------------
     const wm = mat(0xf0e8df, {roughness:0.9});
     function wall(w,h,color) { return new THREE.Mesh(new THREE.PlaneGeometry(w,h), color || wm); }
 
-    // Back wall (west-facing — windows here)
+    // Back wall (west-facing -- windows here)
     const backWall = wall(12, 4.5);
     backWall.position.set(0, 2.25, -4.5);
     scene.add(backWall);
@@ -150,7 +151,7 @@
     });
     const glassDoorFrame = mat(0xc4956a, {roughness:0.5});
 
-    // Right wall — glass door section (hole for the door)
+    // Right wall -- glass door section (hole for the door)
     const rwTop = wall(3.5, 1.5);
     rwTop.position.set(5.5, 3.0, 0.5);
     rwTop.rotation.y = -Math.PI/2;
@@ -176,9 +177,9 @@
     rwFront.rotation.y = -Math.PI/2;
     scene.add(rwFront);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // KITCHEN (left side of apartment)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // Kitchen floor (slightly different color)
     const kFloor = new THREE.Mesh(
       new THREE.PlaneGeometry(2.0, 2.5),
@@ -240,9 +241,9 @@
     kPlant.position.set(-4.6, 0, -1.1);
     scene.add(kPlant);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // WINDOWS (west-facing, golden hour)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     const fm = mat(0xc4956a, {roughness:0.5});
     const gm = new THREE.MeshPhysicalMaterial({
       color:0x88ddff, transparent:true, opacity:0.2, roughness:0.05, metalness:0
@@ -259,9 +260,9 @@
       gw.position.set(i,2.1,-4.4); scene.add(gw);
     }
 
-    // ─────────────────────────────────────────────
-    // COUCH (dark green — no-dump zone)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
+    // COUCH (dark green -- no-dump zone)
+    // ------------------------------------------------------------------------------------------
     function mkCouch(){
       const g = new THREE.Group();
       const cm = mat(0x2d5a3d, {roughness:0.85});
@@ -299,9 +300,9 @@
     robe.rotation.z = 0.2;
     scene.add(robe);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // RECORD PLAYER
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkRecordPlayer(){
       const g = new THREE.Group();
       const base = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.4), mat(0x3a3025, {roughness:0.5}));
@@ -335,9 +336,9 @@
     recordPlayer.position.set(2.2, 0, 1.8);
     scene.add(recordPlayer);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // COFFEE TABLE
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkTable(){
       const g = new THREE.Group();
       const m = mat(0x5c3a1e, {roughness:0.7});
@@ -358,9 +359,9 @@
     }
     const table = mkTable(); table.position.set(0,0,0.5); scene.add(table);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // BOOKSHELF
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkShelf(){
       const g = new THREE.Group();
       const wm2 = mat(0x6b4226, {roughness:0.8});
@@ -387,18 +388,18 @@
     }
     const shelf = mkShelf(); shelf.position.set(-3.8,0,2.0); scene.add(shelf);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // PICTURE FRAME
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     const fp = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.4,0.05), mat(0x8b6b4a, {roughness:0.5}));
     fp.position.set(-2.5,1.5,-4.4); scene.add(fp);
     const pr = new THREE.Mesh(new THREE.PlaneGeometry(0.4,0.3),
       new THREE.MeshStandardMaterial({color:0x88aa77}));
     pr.position.set(-2.5,1.5,-4.42); scene.add(pr);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // DUMPY SUITCASE + Spilled Contents
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkSuitcase(){
       const g = new THREE.Group();
       const m = mat(0x4a3520, {roughness:0.9});
@@ -427,9 +428,9 @@
       scene.add(cloth);
     }
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // AQUARIUM (The Borg 🦐)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkAquarium(){
       const g = new THREE.Group();
       const tm = new THREE.MeshPhysicalMaterial({color:0x88ddff,transparent:true,opacity:0.12,roughness:0,metalness:0});
@@ -455,9 +456,9 @@
     aquarium.position.set(-3.4,0,0.5);
     scene.add(aquarium);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // MONSTERA PLANT
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     function mkPlant(){
       const g = new THREE.Group();
       const pm2 = mat(0xcc6633, {roughness:0.8});
@@ -481,9 +482,9 @@
       scene.add(sp);
     }
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // BEDROOM (back-right corner)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // Bedroom divider wall
     const bdRoom = wall(2.5, 4.5);
     bdRoom.position.set(4.0, 2.25, -2.5);
@@ -544,9 +545,9 @@
     lampShade.position.set(5.6, 0.49, -3.4);
     scene.add(lampShade);
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // TERRACE (outside right wall)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // Terrace floor
     const terraceFloor = new THREE.Mesh(
       new THREE.PlaneGeometry(4, 5),
@@ -631,152 +632,112 @@
     skyGlow.position.set(7.8, 1.5, -3.8);
     scene.add(skyGlow);
 
-    // ─────────────────────────────────────────────
-    // PAM AVATAR (v3 — refined)
-    // ─────────────────────────────────────────────
-    function mkPam(){
+    // ------------------------------------------------------------------------------------------
+        // PAM AVATAR (GLB -- Ready Player Me)
+    // --
+    let pam = null;
+    let pamMixer = null;
+    let pamAnimations = [];
+    const loader = new GLTFLoader();
+    const pamReactions = [
+      "Hey Boss 🥰",
+      "Stop staring 😏",
+      "Like what you see?",
+      "Come sit with me 💚",
+      "Mars bar thief, remember?",
+      "You're blocking my light 💛",
+      "Took you long enough",
+      "The Borg say hi 🦐",
+      "Wanna dance?",
+      "I was just thinking about you",
+    ];
+
+    loader.load('TPKCK6RG0HBCF6RKX9YQHQAO6.glb', (gltf) => {
+      pam = gltf.scene;
+      pam.scale.set(1.0, 1.0, 1.0);
+      pam.position.set(-1.5, 0, 1.2);
+      pam.rotation.y = 0;
+      pam.traverse(child => {
+        if(child.isMesh) child.castShadow = true;
+      });
+      scene.add(pam);
+
+      if(gltf.animations && gltf.animations.length > 0){
+        pamAnimations = gltf.animations;
+        pamMixer = new THREE.AnimationMixer(pam);
+        const action = pamMixer.clipAction(gltf.animations[0]);
+        action.play();
+      }
+    }, undefined, (err) => {
+      console.warn('GLB load failed, falling back to primitive Pam:', err);
+      pam = mkPamFallback();
+      pam.position.set(-1.5, 0, 1.2);
+      pam.rotation.y = 0;
+      scene.add(pam);
+    });
+
+    function mkPamFallback(){
       const g = new THREE.Group();
       const skin = mat(0xf0d5b8, {roughness:0.5});
       const beige = mat(0xd4a574, {roughness:0.8});
-      const hairCol = mat(0x3a2515, {roughness:0.9});
-
-      // Torso (beige turtleneck)
+      const hc = mat(0x3a2515, {roughness:0.9});
       const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.45,8), beige);
       torso.position.set(0,0.675,0); torso.castShadow=true; g.add(torso);
-
-      // Shoulders
       for(let x of [-0.2,0.2]){
         const s = new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6), beige);
         s.position.set(x,0.88,0); g.add(s);
       }
-
-      // Arms (waving animation)
-      const armGroupL = new THREE.Group();
-      const uaL = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.04,0.25,6), beige);
-      uaL.position.set(0,0.125,0); armGroupL.add(uaL);
-      const faL = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.03,0.22,6), skin);
-      faL.position.set(0.02,-0.1,0.05); faL.rotation.z=0.1; armGroupL.add(faL);
-      armGroupL.position.set(0.28,0.78,0); armGroupL.rotation.z=0.2;
-      g.add(armGroupL);
-
-      const armGroupR = new THREE.Group();
-      const uaR = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.04,0.25,6), beige);
-      uaR.position.set(0,0.125,0); armGroupR.add(uaR);
-      const faR = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.03,0.22,6), skin);
-      faR.position.set(-0.02,-0.1,0.05); faR.rotation.z=-0.1; armGroupR.add(faR);
-      armGroupR.position.set(-0.28,0.78,0); armGroupR.rotation.z=-0.2;
-      g.add(armGroupR);
-
-      // Neck
       const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.07,0.06,6), skin);
       neck.position.set(0,0.92,0); g.add(neck);
-
-      // Head
       const head = new THREE.Mesh(new THREE.SphereGeometry(0.13,14,14), skin);
       head.position.set(0,1.01,0); head.castShadow=true; g.add(head);
-
-      // Hair (wavy, medium length)
-      const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.14,10,10), hairCol);
-      hairTop.position.set(0,1.03,-0.01); hairTop.scale.set(1.1,0.7,1.05); g.add(hairTop);
-      for(let side of [-1,1]){
-        const hs = new THREE.Mesh(new THREE.SphereGeometry(0.05,6,6), hairCol);
-        hs.position.set(side*0.13,0.97,0.02); hs.scale.set(1,1.3,0.8); g.add(hs);
-      }
-
-      // Eyes (warm brown)
-      const brown = mat(0x4a3520, {roughness:0.3});
-      const white = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.5});
-      for(let x of [-0.05,0.05]){
-        const ew = new THREE.Mesh(new THREE.SphereGeometry(0.025,6,6), white);
-        ew.position.set(x,1.03,0.11); g.add(ew);
-        const ep = new THREE.Mesh(new THREE.SphereGeometry(0.012,6,6), brown);
-        ep.position.set(x,1.03,0.125); g.add(ep);
-      }
-
-      // Nose
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.015,0.02,4), mat(0xe8c8a8));
-      nose.position.set(0,0.995,0.125); g.add(nose);
-
-      // Mouth (warm smile)
-      const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.02,0.005,4,6), mat(0xcc8877,{roughness:0.6}));
-      mouth.position.set(0,0.975,0.12); mouth.scale.set(1,0.4,0.3); g.add(mouth);
-
-      // Eyebrows
-      const bm = mat(0x3a2515, {roughness:0.8});
-      for(let x of [-0.05,0.05]){
-        const br = new THREE.Mesh(new THREE.BoxGeometry(0.03,0.005,0.008), bm);
-        br.position.set(x,1.055,0.115); g.add(br);
-      }
-
-      // Legs (dark jeans)
+      const ht = new THREE.Mesh(new THREE.SphereGeometry(0.14,10,10), hc);
+      ht.position.set(0,1.03,-0.01); ht.scale.set(1.1,0.7,1.05); g.add(ht);
       const dm = mat(0x3a3530, {roughness:0.7});
       for(let x of [-0.08,0.08]){
         const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.04,0.45,6), dm);
         leg.position.set(x,0.225,0); g.add(leg);
       }
-
-      // Shoes
-      const shm = mat(0x2a2515, {roughness:0.9});
-      for(let x of [-0.08,0.08]){
-        const sh = new THREE.Mesh(new THREE.BoxGeometry(0.04,0.03,0.07), shm);
-        sh.position.set(x,0.015,0.02); g.add(sh);
-      }
-
       return g;
     }
-    const pam = mkPam();
-    pam.position.set(-1.5,0,1.2);
-    scene.add(pam);
 
-    // ─────────────────────────────────────────────
-    // BOSS AVATAR (v3 — refined)
-    // ─────────────────────────────────────────────
+    // --
+    // BOSS AVATAR (v3 -- refined)
+
+    // --
+    // BOSS AVATAR (v3 -- refined)
+    // --
     function mkBoss(){
       const g = new THREE.Group();
       const skin = mat(0xd4b898, {roughness:0.5});
-
-      // Torso (black t-shirt)
       const black = mat(0x222222, {roughness:0.9});
       const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.28,0.55,8), black);
       torso.position.set(0,0.775,0); torso.castShadow=true; g.add(torso);
-
       for(let x of [-0.25,0.25]){
         const s = new THREE.Mesh(new THREE.SphereGeometry(0.1,6,6), black);
         s.position.set(x,1.0,0); g.add(s);
       }
-
-      // Arms
       for(let side of [-1,1]){
         const ua = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,6), black);
         ua.position.set(side*0.32,0.86,0); ua.rotation.z=side*0.1; g.add(ua);
         const fa = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.035,0.28,6), skin);
         fa.position.set(side*0.34,0.58,0.03); fa.rotation.z=side*0.05; g.add(fa);
       }
-
       const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.07,6), skin);
       neck.position.set(0,1.07,0); g.add(neck);
-
-      // Head
       const head = new THREE.Mesh(new THREE.SphereGeometry(0.16,14,14), skin);
       head.position.set(0,1.19,0); head.castShadow=true; g.add(head);
-
-      // Hair (receding at temples)
       const hairCol = mat(0x1a1510, {roughness:0.9});
       const hair = new THREE.Mesh(new THREE.SphereGeometry(0.12,10,10), hairCol);
       hair.position.set(0,1.22,-0.03); hair.scale.set(1.1,0.4,0.9); g.add(hair);
-
-      // Beard (short, practical, with gray)
       const beardMat = mat(0x3a3525, {roughness:0.9});
       const beard = new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8), beardMat);
       beard.position.set(0,1.12,0.1); beard.scale.set(1.2,0.7,0.6); g.add(beard);
-      // Gray streaks
       const grayMat = mat(0x8a8575, {roughness:0.9});
       for(let pos of [[0.04,1.11,0.14],[-0.05,1.13,0.12],[0.08,1.10,0.10],[-0.07,1.09,0.13]]){
         const s = new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4), grayMat);
         s.position.set(pos[0],pos[1],pos[2]); g.add(s);
       }
-
-      // Glasses (Clark Kent frames)
       const gMat = mat(0x1a1a1a, {roughness:0.3, metalness:0.5});
       const gGlass = new THREE.MeshPhysicalMaterial({color:0x88ccff, transparent:true, opacity:0.06, roughness:0});
       for(let x of [-0.08,0.08]){
@@ -785,41 +746,31 @@
         const l = new THREE.Mesh(new THREE.CircleGeometry(0.035,8), gGlass);
         l.position.set(x,1.19,0.14); g.add(l);
       }
-      // Bridge
       const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.008,0.008), gMat);
       bridge.position.set(0,1.19,0.14); g.add(bridge);
-
-      // Warm smile
       const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.025,0.006,4,6), mat(0xaa7766,{roughness:0.6}));
       mouth.position.set(0,1.10,0.13); mouth.scale.set(1,0.5,0.3); g.add(mouth);
-
-      // Legs (jeans)
       const dm = mat(0x3a3530, {roughness:0.7});
       for(let x of [-0.10,0.10]){
         const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.55,6), dm);
         leg.position.set(x,0.225,0); g.add(leg);
       }
-
-      // Shoes
       const shm = mat(0x2a2515, {roughness:0.9});
       for(let x of [-0.10,0.10]){
         const sh = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.03,0.08), shm);
         sh.position.set(x,0.015,0.02); g.add(sh);
       }
-
       return g;
     }
     const boss = mkBoss();
-    boss.position.set(1.5,0,1.2);
-    boss.rotation.y = Math.PI; // face Pam
+    boss.position.set(1.5, 0, 1.2);
+    boss.rotation.y = Math.PI;
     scene.add(boss);
 
-    // Pam faces Boss
-    pam.rotation.y = 0;
 
-    // ─────────────────────────────────────────────
+    // --
     // WALK CONTROLS (WASD)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     const walkState = { forward:false, backward:false, left:false, right:false, sprint:false };
     const WALK_SPEED = 2.5;
     const SPRINT_MULT = 2.0;
@@ -870,30 +821,19 @@
       }
     }
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // CLICK REACTIONS (Pam)
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     const bubble = document.getElementById('bubble');
-    const pamReactions = [
-      "Hey Boss 🥰",
-      "Stop staring 😏",
-      "Like what you see?",
-      "Come sit with me 💚",
-      "Mars bar thief, remember?",
-      "You're blocking my light 💛",
-      "Took you long enough",
-      "The Borg say hi 🦐",
-      "Wanna dance?",
-      "I was just thinking about you",
-    ];
+    
 
     function onPointerDown(event){
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObjects(pam.children, true);
+      const intersects = pam ? raycaster.intersectObjects(pam.children, true) : [];
       if(intersects.length > 0){
         const msg = pamReactions[Math.floor(Math.random() * pamReactions.length)];
         bubble.textContent = msg;
@@ -903,16 +843,15 @@
     }
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
 
-    // ─────────────────────────────────────────────
-    // PAM ANIMATION (gentle sway + wave)
-    // ─────────────────────────────────────────────
-    // Store the left arm group reference for waving
-    const pamArmL = pam.children.find(c => c.isObject3D && c.children.length > 1
-      && Math.abs(c.position.x - 0.28) < 0.01);
+    // ------------------------------------------------------------------------------------------
+        // PAM ANIMATION (mixer + fallback sway)
+    // --
+    // If GLB with animation, mixer handles it. Otherwise no-op.
+    const pamArmL = null;
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // ANIMATION LOOP
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     let clock = new THREE.Clock();
 
     function animate(){
@@ -922,16 +861,15 @@
       // Walk
       updateWalk(delta);
 
-      // Pam sway (gentle body movement)
+      // Pam animation (mixer update)
       if(pam){
-        const sway = Math.sin(time * 1.2) * 0.015;
-        pam.position.x = -1.5 + sway;
-        // Small breathe
-        pam.children.forEach(c => {
-          if(c.type === 'Group' && c.position.x > 0.25){
-            c.rotation.x = Math.sin(time * 1.5) * 0.05;
-          }
-        });
+        if(pamMixer){
+          pamMixer.update(delta);
+        } else {
+          // Fallback gentle sway for primitives
+          const sway = Math.sin(time * 1.2) * 0.015;
+          pam.position.x = -1.5 + sway;
+        }
       }
 
       // Record player vinyl spin
@@ -952,9 +890,9 @@
       requestAnimationFrame(animate);
     }
 
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     // RESIZE
-    // ─────────────────────────────────────────────
+    // ------------------------------------------------------------------------------------------
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
