@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -180,14 +180,8 @@
     // ------------------------------------------------------------------------------------------
     // KITCHEN (left side of apartment)
     // ------------------------------------------------------------------------------------------
-    // Kitchen floor (slightly different color)
-    const kFloor = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.0, 2.5),
-      mat(0x9a7b5a, {roughness:0.5})
-    );
-    kFloor.position.set(-5.2, 0.01, -2.0);
-    kFloor.rotation.x = -Math.PI/2;
-    scene.add(kFloor);
+    // Kitchen accent floor (slightly different color, slightly raised to avoid z-fight)
+    // Removed: main floor covers it, use rug/mat instead if needed
 
     // Counter
     const counter = new THREE.Mesh(
@@ -553,7 +547,7 @@
       new THREE.PlaneGeometry(4, 5),
       mat(0x9a8a7a, {roughness:0.8})
     );
-    terraceFloor.position.set(7.8, 0.01, -0.5);
+    terraceFloor.position.set(7.8, 0.001, -0.5);
     terraceFloor.rotation.x = -Math.PI/2;
     terraceFloor.receiveShadow = true;
     scene.add(terraceFloor);
@@ -652,7 +646,19 @@
       "I was just thinking about you",
     ];
 
+    // Pam GLB load with timeout fallback
+    const pamFallbackTimer = setTimeout(() => {
+      if(!pam){
+        console.warn('Pam GLB load timed out, using fallback');
+        pam = mkPamFallback();
+        pam.position.set(-1.5, 0, 1.2);
+        pam.rotation.y = 0;
+        scene.add(pam);
+      }
+    }, 8000);
+
     loader.load('TPKCK6RG0HBCF6RKX9YQHQAO6.glb', (gltf) => {
+      clearTimeout(pamFallbackTimer);
       pam = gltf.scene;
       pam.scale.set(1.0, 1.0, 1.0);
       pam.position.set(-1.5, 0, 1.2);
@@ -669,7 +675,8 @@
         action.play();
       }
     }, undefined, (err) => {
-      console.warn('GLB load failed, falling back to primitive Pam:', err);
+      clearTimeout(pamFallbackTimer);
+      console.warn('Pam GLB load error, using fallback:', err);
       pam = mkPamFallback();
       pam.position.set(-1.5, 0, 1.2);
       pam.rotation.y = 0;
@@ -705,7 +712,19 @@
     let boss = null;
     let bossMixer = null;
 
+    // Boss GLB load with timeout fallback
+    const bossFallbackTimer = setTimeout(() => {
+      if(!boss){
+        console.warn('Boss GLB load timed out, using fallback');
+        boss = mkBossFallback();
+        boss.position.set(1.5, 0, 1.2);
+        boss.rotation.y = Math.PI;
+        scene.add(boss);
+      }
+    }, 8000);
+
     loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
+      clearTimeout(bossFallbackTimer);
       boss = gltf.scene;
       boss.scale.set(1.0, 1.0, 1.0);
       boss.position.set(1.5, 0, 1.2);
@@ -721,7 +740,8 @@
         action.play();
       }
     }, undefined, (err) => {
-      console.warn('Boss GLB load failed, using mkBossFallback:', err);
+      clearTimeout(bossFallbackTimer);
+      console.warn('Boss GLB load error, using fallback:', err);
       boss = mkBossFallback();
       boss.position.set(1.5, 0, 1.2);
       boss.rotation.y = Math.PI;
