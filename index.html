@@ -741,7 +741,7 @@
         }
       }, 60000);
 
-      loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
+      loader.load('ZMH3RZ2NTSI77DZNNAE7VG7GB.glb', (gltf) => {
         clearTimeout(bossFallbackTimer);
         if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
         boss = gltf.scene;
@@ -753,8 +753,6 @@
         if(gltf.animations && gltf.animations.length > 0){
           bossMixer = new THREE.AnimationMixer(boss);
           bossMixer.clipAction(gltf.animations[0]).play();
-        } else {
-          console.log('Boss GLB has no animations (static model)');
         }
       }, undefined, (err) => {
         clearTimeout(bossFallbackTimer);
