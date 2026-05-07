@@ -718,12 +718,12 @@
         }
       }, 60000);
 
-      loader.load('B9DLH8APOH0V7EVZ3KZ7CQOQD.glb', (gltf) => {
+      loader.load('ZMH3RZ2NTSI77DZNNAE7VG7GB.glb', (gltf) => {
         clearTimeout(bossFallbackTimer);
         if(bossFallbackInst){ scene.remove(bossFallbackInst); bossFallbackInst = null; }
         boss = gltf.scene;
-        boss.scale.set(0.8, 0.8, 0.8);
-        boss.position.set(1.5, 0.95, 1.2);
+        boss.scale.set(1.0, 1.0, 1.0);
+        boss.position.set(1.5, 1.0, 1.2);
         boss.rotation.y = Math.PI;
         boss.traverse(child => { if(child.isMesh) child.castShadow = true; });
         scene.add(boss);
